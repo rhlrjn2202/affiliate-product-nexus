@@ -5,11 +5,15 @@ import { SearchBar } from "@/components/SearchBar";
 import { Product, mapDatabaseProductToProduct } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useInView } from "react-intersection-observer";
+import { useEffect } from "react";
 
 const Index = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
+  const { ref, inView } = useInView();
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -18,6 +22,18 @@ const Index = () => {
         .from("categories")
         .select("*")
         .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: settings } = useQuery({
+    queryKey: ["settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("settings")
+        .select("*")
+        .single();
       if (error) throw error;
       return data;
     },
@@ -46,19 +62,48 @@ const Index = () => {
     },
   });
 
+  useEffect(() => {
+    if (settings?.ga_tag) {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${settings.ga_tag}`;
+      document.head.appendChild(script);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(...args: any[]) {
+        window.dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', settings.ga_tag);
+    }
+  }, [settings?.ga_tag]);
+
   const filteredProducts = products?.filter((product) =>
     product.title.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
+  useEffect(() => {
+    if (inView && filteredProducts.length > displayedProducts.length) {
+      setDisplayedProducts(prev => [
+        ...prev,
+        ...filteredProducts.slice(prev.length, prev.length + 12)
+      ]);
+    }
+  }, [inView, filteredProducts]);
+
+  useEffect(() => {
+    setDisplayedProducts(filteredProducts.slice(0, 12));
+  }, [filteredProducts]);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="relative bg-secondary px-6 py-24 text-center">
+      {/* Hero Section with reduced height */}
+      <div className="relative bg-secondary px-6 py-12 text-center">
         <div className="mx-auto max-w-3xl">
-          <h1 className="mb-4 text-4xl font-bold text-white sm:text-5xl">
+          <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">
             Discover Amazing Products
           </h1>
-          <p className="mb-8 text-lg text-gray-300">
+          <p className="mb-4 text-lg text-gray-300">
             Handpicked selection of the best products from Amazon, curated just for you.
           </p>
         </div>
@@ -98,12 +143,31 @@ const Index = () => {
         {isLoading ? (
           <div className="text-center py-12">Loading products...</div>
         ) : (
-          <ProductGrid products={filteredProducts} onSelectProduct={setSelectedProduct} />
+          <>
+            <ProductGrid products={displayedProducts} onSelectProduct={setSelectedProduct} />
+            <div ref={ref} className="h-10" />
+          </>
         )}
         <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-100 py-8 mt-12">
+        <div className="mx-auto max-w-7xl px-6">
+          <p className="text-center text-sm text-gray-600">
+            This website contains affiliate links. When you click on these links and make a purchase, we may earn a commission.
+            The products featured on this site have been independently selected and reviewed.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
 
 export default Index;
+
+declare global {
+  interface Window {
+    dataLayer: any[];
+  }
+}

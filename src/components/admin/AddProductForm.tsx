@@ -114,7 +114,7 @@ export const AddProductForm = ({ open, onClose, onSuccess }: AddProductFormProps
                   <FormLabel>Category</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white">
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                     </FormControl>
