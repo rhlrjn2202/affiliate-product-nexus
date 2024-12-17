@@ -8,25 +8,46 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
-import { products } from "@/lib/data";
-import { useToast } from "@/components/ui/use-toast";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const ProductTable = () => {
-  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: products, isLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const handleEdit = (id: string) => {
-    toast({
-      title: "Edit product",
-      description: "This feature will be implemented soon.",
-    });
+    // TODO: Implement edit functionality
+    toast.info("Edit functionality coming soon!");
   };
 
-  const handleDelete = (id: string) => {
-    toast({
-      title: "Delete product",
-      description: "This feature will be implemented soon.",
-    });
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase.from("products").delete().eq("id", id);
+      if (error) throw error;
+      
+      toast.success("Product deleted successfully!");
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    } catch (error: any) {
+      toast.error("Failed to delete product: " + error.message);
+    }
   };
+
+  if (isLoading) {
+    return <div className="text-center py-4">Loading...</div>;
+  }
 
   return (
     <div className="rounded-md border bg-white">
@@ -41,7 +62,7 @@ export const ProductTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {products.map((product) => (
+          {products?.map((product) => (
             <TableRow key={product.id}>
               <TableCell>
                 <img

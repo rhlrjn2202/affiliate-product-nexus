@@ -3,9 +3,15 @@ import { ProductTable } from "@/components/admin/ProductTable";
 import { AddProductForm } from "@/components/admin/AddProductForm";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Admin = () => {
   const [showAddForm, setShowAddForm] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleProductAdded = () => {
+    queryClient.invalidateQueries({ queryKey: ["products"] });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -19,7 +25,11 @@ const Admin = () => {
         </div>
 
         <ProductTable />
-        <AddProductForm open={showAddForm} onClose={() => setShowAddForm(false)} />
+        <AddProductForm 
+          open={showAddForm} 
+          onClose={() => setShowAddForm(false)} 
+          onSuccess={handleProductAdded}
+        />
       </div>
     </div>
   );

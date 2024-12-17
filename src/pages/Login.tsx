@@ -3,32 +3,35 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, session);
+      
       if (session) {
-        // Check if user is admin
-        const checkAdminStatus = async () => {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", session.user.id)
-            .single();
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
 
-          if (profile?.role === "admin") {
-            navigate("/admin");
-          } else {
-            // If not admin, sign them out
-            await supabase.auth.signOut();
-          }
-        };
-        checkAdminStatus();
+        console.log("User profile:", profile);
+
+        if (profile?.role === "admin") {
+          toast.success("Welcome back, admin!");
+          navigate("/admin");
+        } else {
+          toast.error("Access denied. Admin privileges required.");
+          await supabase.auth.signOut();
+        }
       }
     });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   return (
@@ -37,7 +40,17 @@ const Login = () => {
         <h1 className="text-2xl font-bold text-center mb-6">Admin Login</h1>
         <Auth
           supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
+          appearance={{ 
+            theme: ThemeSupa,
+            variables: {
+              default: {
+                colors: {
+                  brand: '#000000',
+                  brandAccent: '#666666',
+                }
+              }
+            }
+          }}
           theme="light"
           providers={[]}
         />

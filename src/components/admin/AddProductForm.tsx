@@ -4,13 +4,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface AddProductFormProps {
   open: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export const AddProductForm = ({ open, onClose }: AddProductFormProps) => {
+export const AddProductForm = ({ open, onClose, onSuccess }: AddProductFormProps) => {
   const form = useForm({
     defaultValues: {
       title: "",
@@ -22,14 +25,28 @@ export const AddProductForm = ({ open, onClose }: AddProductFormProps) => {
     },
   });
 
-  const { toast } = useToast();
+  const onSubmit = async (data: any) => {
+    try {
+      const { error } = await supabase.from("products").insert([
+        {
+          title: data.title,
+          description: data.description,
+          price: parseFloat(data.price),
+          category: data.category,
+          image: data.image,
+          affiliate_link: data.affiliateLink,
+        },
+      ]);
 
-  const onSubmit = (data: any) => {
-    toast({
-      title: "Product added",
-      description: "This feature will be implemented soon.",
-    });
-    onClose();
+      if (error) throw error;
+
+      toast.success("Product added successfully!");
+      form.reset();
+      onClose();
+      onSuccess?.();
+    } catch (error: any) {
+      toast.error("Failed to add product: " + error.message);
+    }
   };
 
   return (
@@ -71,7 +88,7 @@ export const AddProductForm = ({ open, onClose }: AddProductFormProps) => {
                 <FormItem>
                   <FormLabel>Price</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="99.99" {...field} />
+                    <Input type="number" step="0.01" placeholder="99.99" {...field} />
                   </FormControl>
                 </FormItem>
               )}
