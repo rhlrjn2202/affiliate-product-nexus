@@ -16,6 +16,7 @@ export const AnalyticsSettings = () => {
       const { data, error } = await supabase
         .from("settings")
         .select("*")
+        .eq("id", 1)
         .single();
       if (error) throw error;
       return data as Settings;
