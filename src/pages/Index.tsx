@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
-import type { Database } from "@/integrations/supabase/types";
+import type { Settings } from "@/integrations/supabase/types";
 
 const Index = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -36,7 +36,7 @@ const Index = () => {
         .select("*")
         .single();
       if (error) throw error;
-      return data as Database["public"]["Tables"]["settings"]["Row"];
+      return data as Settings;
     },
   });
 
