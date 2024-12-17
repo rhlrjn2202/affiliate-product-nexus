@@ -2,10 +2,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
-import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 
 interface AddProductFormProps {
   open: boolean;
@@ -19,9 +20,21 @@ export const AddProductForm = ({ open, onClose, onSuccess }: AddProductFormProps
       title: "",
       description: "",
       price: "",
-      category: "",
+      category_id: "",
       image: "",
       affiliateLink: "",
+    },
+  });
+
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
+      if (error) throw error;
+      return data;
     },
   });
 
@@ -32,7 +45,7 @@ export const AddProductForm = ({ open, onClose, onSuccess }: AddProductFormProps
           title: data.title,
           description: data.description,
           price: parseFloat(data.price),
-          category: data.category,
+          category_id: data.category_id,
           image: data.image,
           affiliate_link: data.affiliateLink,
         },
@@ -86,22 +99,33 @@ export const AddProductForm = ({ open, onClose, onSuccess }: AddProductFormProps
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price</FormLabel>
+                  <FormLabel>Price (₹)</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" placeholder="99.99" {...field} />
+                    <Input type="number" step="0.01" placeholder="999.99" {...field} />
                   </FormControl>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="category"
+              name="category_id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Product category" {...field} />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories?.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormItem>
               )}
             />

@@ -32,7 +32,7 @@ export const ProductCard = ({ product, onSelect }: ProductCardProps) => {
         <h3 className="mb-2 text-lg font-semibold text-gray-900">{product.title}</h3>
         <p className="mb-4 text-sm text-gray-600 line-clamp-2">{product.description}</p>
         <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-primary">${product.price}</span>
+          <span className="text-xl font-bold text-primary">₹{product.price.toLocaleString('en-IN')}</span>
           <button
             onClick={handleClick}
             className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"

@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { ProductTable } from "@/components/admin/ProductTable";
 import { AddProductForm } from "@/components/admin/AddProductForm";
+import { CategoryManager } from "@/components/admin/CategoryManager";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -24,7 +26,21 @@ const Admin = () => {
           </Button>
         </div>
 
-        <ProductTable />
+        <Tabs defaultValue="products" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="products">
+            <ProductTable />
+          </TabsContent>
+
+          <TabsContent value="categories">
+            <CategoryManager />
+          </TabsContent>
+        </Tabs>
+
         <AddProductForm 
           open={showAddForm} 
           onClose={() => setShowAddForm(false)} 

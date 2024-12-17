@@ -2,19 +2,53 @@ import { useState } from "react";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ProductModal } from "@/components/ProductModal";
 import { SearchBar } from "@/components/SearchBar";
-import { products, categories } from "@/lib/data";
 import { Product } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !selectedCategory || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
   });
+
+  const { data: products, isLoading } = useQuery({
+    queryKey: ["products", selectedCategory],
+    queryFn: async () => {
+      let query = supabase
+        .from("products")
+        .select(`
+          *,
+          categories:category_id (
+            id,
+            name
+          )
+        `);
+
+      if (selectedCategory) {
+        query = query.eq("category_id", selectedCategory);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const filteredProducts = products?.filter((product) =>
+    product.title.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -45,23 +79,27 @@ const Index = () => {
             >
               All
             </button>
-            {categories.map((category) => (
+            {categories?.map((category) => (
               <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                  selectedCategory === category
+                  selectedCategory === category.id
                     ? "bg-primary text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                {category}
+                {category.name}
               </button>
             ))}
           </div>
         </div>
 
-        <ProductGrid products={filteredProducts} onSelectProduct={setSelectedProduct} />
+        {isLoading ? (
+          <div className="text-center py-12">Loading products...</div>
+        ) : (
+          <ProductGrid products={filteredProducts} onSelectProduct={setSelectedProduct} />
+        )}
         <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
       </div>
     </div>
