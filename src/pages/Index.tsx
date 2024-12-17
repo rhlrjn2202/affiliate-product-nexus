@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ProductModal } from "@/components/ProductModal";
 import { SearchBar } from "@/components/SearchBar";
-import { Product } from "@/lib/types";
+import { Product, mapDatabaseProductToProduct } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -42,7 +42,7 @@ const Index = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      return data.map(mapDatabaseProductToProduct);
     },
   });
 
