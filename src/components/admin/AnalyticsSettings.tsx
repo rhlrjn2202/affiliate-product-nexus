@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Database } from "@/integrations/supabase/types";
 
 export const AnalyticsSettings = () => {
   const [gaTag, setGaTag] = useState("");
@@ -17,7 +18,7 @@ export const AnalyticsSettings = () => {
         .select("*")
         .single();
       if (error) throw error;
-      return data;
+      return data as Database["public"]["Tables"]["settings"]["Row"];
     },
   });
 

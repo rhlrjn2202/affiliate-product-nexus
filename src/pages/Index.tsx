@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
+import type { Database } from "@/integrations/supabase/types";
 
 const Index = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -35,7 +36,7 @@ const Index = () => {
         .select("*")
         .single();
       if (error) throw error;
-      return data;
+      return data as Database["public"]["Tables"]["settings"]["Row"];
     },
   });
 
@@ -98,7 +99,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section with reduced height */}
-      <div className="relative bg-secondary px-6 py-12 text-center">
+      <div className="relative bg-secondary px-6 py-8 text-center">
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">
             Discover Amazing Products
