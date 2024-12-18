@@ -3,8 +3,11 @@ import { AddProductForm } from "@/components/admin/AddProductForm";
 import { ProductTable } from "@/components/admin/ProductTable";
 import { CategoryManager } from "@/components/admin/CategoryManager";
 import { SEOSettings } from "@/components/admin/SEOSettings";
+import { useState } from "react";
 
 const Admin = () => {
+  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+
   return (
     <div className="container mx-auto py-8">
       <h1 className="mb-8 text-3xl font-bold">Admin Dashboard</h1>
@@ -19,7 +22,11 @@ const Admin = () => {
           <ProductTable />
         </TabsContent>
         <TabsContent value="add-product" className="mt-4">
-          <AddProductForm />
+          <AddProductForm 
+            open={isAddProductOpen} 
+            onClose={() => setIsAddProductOpen(false)}
+            onSuccess={() => setIsAddProductOpen(false)}
+          />
         </TabsContent>
         <TabsContent value="categories" className="mt-4">
           <CategoryManager />
