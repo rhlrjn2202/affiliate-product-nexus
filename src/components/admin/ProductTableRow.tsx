@@ -4,13 +4,15 @@ import { Pencil, Trash2 } from "lucide-react";
 
 interface ProductTableRowProps {
   product: any;
+  index: number;
   onEdit: () => void;
   onDelete: () => void;
 }
 
-export const ProductTableRow = ({ product, onEdit, onDelete }: ProductTableRowProps) => {
+export const ProductTableRow = ({ product, index, onEdit, onDelete }: ProductTableRowProps) => {
   return (
     <TableRow key={product.id}>
+      <TableCell>{index}</TableCell>
       <TableCell>
         <img
           src={product.image}

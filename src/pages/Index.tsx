@@ -6,7 +6,7 @@ import { Product, mapDatabaseProductToProduct } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useInView } from "react-intersection-observer";
-import type { Settings } from "@/integrations/supabase/types";
+import { Helmet } from "react-helmet";
 
 const Index = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -27,7 +27,7 @@ const Index = () => {
     },
   });
 
-  const { data: settings, error: settingsError } = useQuery({
+  const { data: settings } = useQuery({
     queryKey: ["settings"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -39,7 +39,7 @@ const Index = () => {
         console.error("Error fetching settings:", error);
         return null;
       }
-      return data as Settings;
+      return data;
     },
   });
 
@@ -68,11 +68,17 @@ const Index = () => {
 
   useEffect(() => {
     if (settings?.ga_tag) {
+      // Remove any existing GA scripts
+      const existingScripts = document.querySelectorAll('script[src*="googletagmanager"]');
+      existingScripts.forEach(script => script.remove());
+
+      // Add new GA script
       const script = document.createElement('script');
       script.async = true;
       script.src = `https://www.googletagmanager.com/gtag/js?id=${settings.ga_tag}`;
       document.head.appendChild(script);
 
+      // Initialize GA
       window.dataLayer = window.dataLayer || [];
       function gtag(...args: any[]) {
         window.dataLayer.push(arguments);
@@ -99,8 +105,21 @@ const Index = () => {
     setDisplayedProducts(filteredProducts.slice(0, 12));
   }, [filteredProducts]);
 
+  const metaDescription = "Discover amazing products curated just for you. Browse our handpicked selection of the best products from Amazon.";
+  const metaKeywords = "products, amazon, shopping, deals, best products";
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <Helmet>
+        <title>Discover Amazing Products | Your Shopping Destination</title>
+        <meta name="description" content={metaDescription} />
+        <meta name="keywords" content={metaKeywords} />
+        <meta property="og:title" content="Discover Amazing Products | Your Shopping Destination" />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href={window.location.href} />
+      </Helmet>
+
       {/* Hero Section with reduced height */}
       <div className="relative bg-secondary px-6 py-8 text-center">
         <div className="mx-auto max-w-3xl">
