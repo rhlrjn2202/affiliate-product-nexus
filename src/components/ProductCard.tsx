@@ -5,17 +5,19 @@ import { supabase } from "@/integrations/supabase/client";
 interface ProductCardProps {
   product: Product;
   onSelect: (product: Product) => void;
+  trackClicks?: boolean;
 }
 
-export const ProductCard = ({ product, onSelect }: ProductCardProps) => {
+export const ProductCard = ({ product, onSelect, trackClicks = false }: ProductCardProps) => {
   const handleClick = async () => {
-    try {
-      // Record click in database
-      await supabase.from("clicks").insert({
-        product_id: product.id,
-      });
-    } catch (error) {
-      console.error("Error recording click:", error);
+    if (trackClicks) {
+      try {
+        await supabase.from("clicks").insert({
+          product_id: product.id,
+        });
+      } catch (error) {
+        console.error("Error recording click:", error);
+      }
     }
     onSelect(product);
   };

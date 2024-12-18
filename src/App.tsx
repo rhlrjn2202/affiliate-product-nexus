@@ -22,6 +22,23 @@ const queryClient = new QueryClient({
 
 const App = () => {
   useEffect(() => {
+    const fetchAndSetMetadata = async () => {
+      const { data: settings } = await supabase
+        .from('settings')
+        .select('*')
+        .single();
+
+      if (settings) {
+        document.title = settings.meta_title || 'Affiliate Product Nexus';
+        document.querySelector('meta[name="description"]')?.setAttribute('content', settings.meta_description || '');
+        document.querySelector('meta[name="keywords"]')?.setAttribute('content', settings.meta_keywords || '');
+        document.querySelector('meta[property="og:title"]')?.setAttribute('content', settings.meta_title || '');
+        document.querySelector('meta[property="og:description"]')?.setAttribute('content', settings.meta_description || '');
+      }
+    };
+
+    fetchAndSetMetadata();
+
     // Log any auth errors to help with debugging
     supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event, session);
