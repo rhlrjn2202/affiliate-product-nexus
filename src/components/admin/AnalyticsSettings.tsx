@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Settings } from "@/integrations/supabase/types";
+import type { Settings } from "@/integrations/supabase/types/settings";
 
 export const AnalyticsSettings = () => {
   const [gaTag, setGaTag] = useState("");
