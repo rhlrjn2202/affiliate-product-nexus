@@ -126,18 +126,27 @@ export type Database = {
           created_at: string
           ga_tag: string | null
           id: number
+          meta_description: string | null
+          meta_keywords: string | null
+          meta_title: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           ga_tag?: string | null
           id?: number
+          meta_description?: string | null
+          meta_keywords?: string | null
+          meta_title?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           ga_tag?: string | null
           id?: number
+          meta_description?: string | null
+          meta_keywords?: string | null
+          meta_title?: string | null
           updated_at?: string
         }
         Relationships: []

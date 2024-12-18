@@ -1,6 +1,6 @@
 import { Product } from "@/lib/types";
-import { trackClick } from "@/lib/tracking";
-import { useToast } from "@/components/ui/use-toast";
+import { Card, CardContent } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProductCardProps {
   product: Product;
@@ -8,44 +8,35 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product, onSelect }: ProductCardProps) => {
-  const { toast } = useToast();
-
-  const handleClick = () => {
-    trackClick(product.id);
-    window.open(product.affiliateLink, "_blank");
-    toast({
-      title: "Opening product page",
-      description: "Redirecting you to Amazon...",
-    });
+  const handleClick = async () => {
+    try {
+      // Record click in database
+      await supabase.from("clicks").insert({
+        product_id: product.id,
+      });
+    } catch (error) {
+      console.error("Error recording click:", error);
+    }
+    onSelect(product);
   };
 
   return (
-    <div className="group relative overflow-hidden rounded-lg bg-white shadow-md transition-all hover:shadow-xl">
+    <Card 
+      className="overflow-hidden transition-transform hover:scale-105 cursor-pointer bg-white shadow-lg hover:shadow-xl"
+      onClick={handleClick}
+    >
       <div className="aspect-square overflow-hidden">
         <img
-          src={product.image}
+          src={product.image || "/placeholder.svg"}
           alt={product.title}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+          className="h-full w-full object-cover"
+          loading="lazy"
         />
       </div>
-      <div className="p-4">
-        <h3 className="mb-2 text-lg font-semibold text-gray-900">{product.title}</h3>
-        <p className="mb-4 text-sm text-gray-600 line-clamp-2">{product.description}</p>
-        <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-primary">₹{product.price.toLocaleString('en-IN')}</span>
-          <button
-            onClick={handleClick}
-            className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
-          >
-            View on Amazon
-          </button>
-        </div>
-      </div>
-      <button
-        onClick={() => onSelect(product)}
-        className="absolute inset-0 z-10 bg-black/0 transition-colors hover:bg-black/5"
-        aria-label="View details"
-      />
-    </div>
+      <CardContent className="p-4">
+        <h3 className="font-semibold text-lg mb-2 line-clamp-2">{product.title}</h3>
+        <p className="text-2xl font-bold text-primary">₹{product.price.toLocaleString('en-IN')}</p>
+      </CardContent>
+    </Card>
   );
 };

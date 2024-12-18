@@ -105,29 +105,26 @@ const Index = () => {
     setDisplayedProducts(filteredProducts.slice(0, 12));
   }, [filteredProducts]);
 
-  const metaDescription = "Discover amazing products curated just for you. Browse our handpicked selection of the best products from Amazon.";
-  const metaKeywords = "products, amazon, shopping, deals, best products";
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Helmet>
-        <title>Discover Amazing Products | Your Shopping Destination</title>
-        <meta name="description" content={metaDescription} />
-        <meta name="keywords" content={metaKeywords} />
-        <meta property="og:title" content="Discover Amazing Products | Your Shopping Destination" />
-        <meta property="og:description" content={metaDescription} />
+        <title>{settings?.meta_title || "Discover Amazing Products | Your Shopping Destination"}</title>
+        <meta name="description" content={settings?.meta_description || "Discover amazing products curated just for you."} />
+        <meta name="keywords" content={settings?.meta_keywords || "products, shopping"} />
+        <meta property="og:title" content={settings?.meta_title || "Discover Amazing Products"} />
+        <meta property="og:description" content={settings?.meta_description} />
         <meta property="og:type" content="website" />
         <link rel="canonical" href={window.location.href} />
       </Helmet>
 
-      {/* Hero Section with reduced height */}
-      <div className="relative bg-secondary px-6 py-8 text-center">
+      {/* Hero Section with gradient background */}
+      <div className="relative bg-gradient-to-r from-primary to-secondary px-6 py-12 text-center">
         <div className="mx-auto max-w-3xl">
-          <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">
+          <h1 className="mb-4 text-4xl font-bold text-white sm:text-5xl">
             Discover Amazing Products
           </h1>
-          <p className="mb-4 text-lg text-gray-300">
-            Handpicked selection of the best products from Amazon, curated just for you.
+          <p className="text-xl text-gray-100">
+            Handpicked selection of the best products, curated just for you.
           </p>
         </div>
       </div>
@@ -141,8 +138,8 @@ const Index = () => {
               onClick={() => setSelectedCategory(null)}
               className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                 !selectedCategory
-                  ? "bg-primary text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-primary text-white shadow-lg"
+                  : "bg-white text-gray-600 hover:bg-gray-50 shadow"
               }`}
             >
               All
@@ -153,8 +150,8 @@ const Index = () => {
                 onClick={() => setSelectedCategory(category.id)}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                   selectedCategory === category.id
-                    ? "bg-primary text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    ? "bg-primary text-white shadow-lg"
+                    : "bg-white text-gray-600 hover:bg-gray-50 shadow"
                 }`}
               >
                 {category.name}
@@ -164,7 +161,15 @@ const Index = () => {
         </div>
 
         {isLoading ? (
-          <div className="text-center py-12">Loading products...</div>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-48 bg-gray-200 rounded-lg mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
         ) : (
           <>
             <ProductGrid products={displayedProducts} onSelectProduct={setSelectedProduct} />
@@ -174,10 +179,10 @@ const Index = () => {
         <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-100 py-8 mt-12">
+      {/* Footer with gradient background */}
+      <footer className="bg-gradient-to-r from-gray-800 to-gray-900 py-12 mt-12 text-white">
         <div className="mx-auto max-w-7xl px-6">
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-gray-300">
             This website contains affiliate links. When you click on these links and make a purchase, we may earn a commission.
             The products featured on this site have been independently selected and reviewed.
           </p>
