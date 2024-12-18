@@ -10,7 +10,7 @@ export const AnalyticsSettings = () => {
   const [gaTag, setGaTag] = useState("");
   const queryClient = useQueryClient();
 
-  const { data: settings } = useQuery({
+  const { data: settings, error } = useQuery({
     queryKey: ["settings"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -37,6 +37,11 @@ export const AnalyticsSettings = () => {
       toast.error("Failed to update settings: " + error.message);
     }
   };
+
+  if (error) {
+    console.error("Error fetching settings:", error);
+    return <div>Error loading settings</div>;
+  }
 
   return (
     <div className="space-y-4">

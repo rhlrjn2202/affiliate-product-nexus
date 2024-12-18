@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ProductModal } from "@/components/ProductModal";
 import { SearchBar } from "@/components/SearchBar";
@@ -6,7 +6,6 @@ import { Product, mapDatabaseProductToProduct } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useInView } from "react-intersection-observer";
-import { useEffect } from "react";
 import type { Settings } from "@/integrations/supabase/types";
 
 const Index = () => {
@@ -28,7 +27,7 @@ const Index = () => {
     },
   });
 
-  const { data: settings } = useQuery({
+  const { data: settings, error: settingsError } = useQuery({
     queryKey: ["settings"],
     queryFn: async () => {
       const { data, error } = await supabase
