@@ -14,6 +14,8 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5, // Data is considered fresh for 5 minutes
+      cacheTime: 1000 * 60 * 30, // Cache is kept for 30 minutes
     },
   },
 });
@@ -23,6 +25,11 @@ const App = () => {
     // Log any auth errors to help with debugging
     supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event, session);
+      
+      // Invalidate queries when auth state changes
+      if (event === 'SIGNED_OUT') {
+        queryClient.clear();
+      }
     });
   }, []);
 
