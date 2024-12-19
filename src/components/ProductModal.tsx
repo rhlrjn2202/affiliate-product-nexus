@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Product } from "@/lib/types";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProductModalProps {
   product: Product | null;
@@ -9,7 +10,15 @@ interface ProductModalProps {
 export const ProductModal = ({ product, onClose }: ProductModalProps) => {
   if (!product) return null;
 
-  const handleClick = () => {
+  const handleClick = async () => {
+    try {
+      // Record the click in the database
+      await supabase.from("clicks").insert({
+        product_id: product.id,
+      });
+    } catch (error) {
+      console.error("Error recording click:", error);
+    }
     window.open(product.affiliateLink, "_blank");
   };
 

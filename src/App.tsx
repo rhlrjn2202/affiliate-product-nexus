@@ -16,8 +16,8 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5, // Data is considered fresh for 5 minutes
-      gcTime: 1000 * 60 * 30, // Cache is kept for 30 minutes
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 30,
     },
   },
 });
@@ -35,6 +35,23 @@ const SEOWrapper = ({ children }: { children: React.ReactNode }) => {
     },
   });
 
+  useEffect(() => {
+    if (settings?.ga_tag) {
+      // Initialize Google Analytics
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${settings.ga_tag}`;
+      document.head.appendChild(script);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(...args: any[]) {
+        window.dataLayer.push(args);
+      }
+      gtag('js', new Date());
+      gtag('config', settings.ga_tag);
+    }
+  }, [settings?.ga_tag]);
+
   return (
     <>
       <Helmet>
@@ -43,20 +60,7 @@ const SEOWrapper = ({ children }: { children: React.ReactNode }) => {
         {settings?.meta_keywords && <meta name="keywords" content={settings.meta_keywords} />}
         {settings?.meta_title && <meta property="og:title" content={settings.meta_title} />}
         {settings?.meta_description && <meta property="og:description" content={settings.meta_description} />}
-        {settings?.ga_tag && (
-          <script>
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${settings.ga_tag}');
-            `}
-          </script>
-        )}
       </Helmet>
-      {settings?.ga_tag && (
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${settings.ga_tag}`} />
-      )}
       {children}
     </>
   );
