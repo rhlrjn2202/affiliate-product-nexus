@@ -44,19 +44,19 @@ const SEOWrapper = ({ children }: { children: React.ReactNode }) => {
         {settings?.meta_title && <meta property="og:title" content={settings.meta_title} />}
         {settings?.meta_description && <meta property="og:description" content={settings.meta_description} />}
         {settings?.ga_tag && (
-          <>
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${settings.ga_tag}`}></script>
-            <script>
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${settings.ga_tag}');
-              `}
-            </script>
-          </>
+          <script>
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${settings.ga_tag}');
+            `}
+          </script>
         )}
       </Helmet>
+      {settings?.ga_tag && (
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${settings.ga_tag}`} />
+      )}
       {children}
     </>
   );

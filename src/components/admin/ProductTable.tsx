@@ -26,7 +26,11 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-export const ProductTable = () => {
+interface ProductTableProps {
+  trackClicks?: boolean;
+}
+
+export const ProductTable = ({ trackClicks = false }: ProductTableProps) => {
   const queryClient = useQueryClient();
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
