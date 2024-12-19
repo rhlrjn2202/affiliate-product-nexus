@@ -62,7 +62,7 @@ const Admin = () => {
                 Add Product
               </Button>
             </div>
-            <ProductTable />
+            <ProductTable trackClicks={true} />
           </TabsContent>
           <TabsContent value="categories" className="mt-4">
             <CategoryManager />
@@ -77,7 +77,6 @@ const Admin = () => {
           onClose={() => setIsAddProductOpen(false)}
           onSuccess={() => {
             setIsAddProductOpen(false);
-            // Invalidate the products query to refresh the table
             window.location.reload();
           }}
         />
